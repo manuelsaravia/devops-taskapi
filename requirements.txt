@@ -1,0 +1,6 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+sqlalchemy>=2.0.44,<2.1  # 2.0.40 no funciona en Python 3.14
+pydantic>=2.9
+pytest==8.2.0
+httpx==0.27.0
