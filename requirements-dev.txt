@@ -1,0 +1,3 @@
+# Dependencias solo para CI/desarrollo (no van en la imagen de producción)
+-r requirements.txt
+pytest-cov==5.0.0

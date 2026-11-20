@@ -5,3 +5,6 @@ __pycache__/
 *.db
 data/
 .idea/
+.coverage
+coverage-html/
+test-report.xml
