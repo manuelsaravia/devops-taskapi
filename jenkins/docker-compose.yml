@@ -1,0 +1,14 @@
+services:
+  jenkins:
+    build: .                          # construye la imagen desde ./Dockerfile
+    container_name: jenkins
+    restart: unless-stopped
+    ports:
+      - "8080:8080"                   # interfaz web
+      - "50000:50000"                 # agentes JNLP
+    volumes:
+      - jenkins_home:/var/jenkins_home              # datos persistentes
+      - /var/run/docker.sock:/var/run/docker.sock   # socket del host
+
+volumes:
+  jenkins_home:
