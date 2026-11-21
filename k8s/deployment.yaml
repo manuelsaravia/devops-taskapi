@@ -37,6 +37,12 @@ spec:
             limits:
               cpu: "250m"
               memory: "256Mi"
+          startupProbe:              # da hasta 150 s para arrancar; mientras tanto liveness/readiness no actúan
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 5
+            failureThreshold: 30
           livenessProbe:             # si falla 3 veces, Kubernetes reinicia el contenedor
             httpGet:
               path: /health

@@ -104,8 +104,8 @@ pipeline {
                     # 3. Fijar la imagen exacta de este build (trazabilidad: pod ↔ build de Jenkins)
                     kubectl set image deployment/taskapi taskapi="$IMAGE_NAME:$BUILD_NUMBER" -n devops-project
 
-                    # 4. Esperar el rolling update (máx. 2 min); si no termina, el stage falla
-                    kubectl rollout status deployment/taskapi -n devops-project --timeout=120s
+                    # 4. Esperar el rolling update (máx. 3 min); si no termina, el stage falla
+                    kubectl rollout status deployment/taskapi -n devops-project --timeout=180s
                     kubectl get pods -n devops-project -o wide
                 '''
             }
