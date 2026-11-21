@@ -8,3 +8,4 @@ data/
 .coverage
 coverage-html/
 test-report.xml
+informe/

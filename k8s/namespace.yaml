@@ -1,0 +1,7 @@
+# Partición lógica del clúster: agrupa todos los recursos del proyecto
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devops-project
+  labels:
+    project: devops-taskapi

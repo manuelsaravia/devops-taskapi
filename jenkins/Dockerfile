@@ -20,6 +20,11 @@ RUN apt-get update && \
     apt-get install -y python3 python3-pip python3-venv && \
     rm -rf /var/lib/apt/lists/*
 
+# ── kubectl (Semana 3: stage Deploy) ─────────────────────────
+RUN curl -fsSL "https://dl.k8s.io/release/$(curl -fsSL https://dl.k8s.io/release/stable.txt)/bin/linux/$(dpkg --print-architecture)/kubectl" \
+        -o /usr/local/bin/kubectl && \
+    chmod +x /usr/local/bin/kubectl
+
 # ── Acceso al socket de Docker ───────────────────────────────
 RUN groupadd -f docker && usermod -aG docker jenkins
 

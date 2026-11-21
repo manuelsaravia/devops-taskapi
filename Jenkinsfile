@@ -1,4 +1,4 @@
-// Pipeline CI: Checkout → Test (+cobertura) → Build → Scan (Trivy) → Push a Docker Hub
+// Pipeline CI/CD: Checkout → Test (+cobertura) → Build → Scan (Trivy) → Push a Docker Hub → Deploy a Kubernetes
 pipeline {
     agent any
 
@@ -83,6 +83,39 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy') {
+            environment {
+                KUBECONFIG = '/tmp/kubeconfig'   // copia parcheada, solo para este stage
+            }
+            steps {
+                sh '''
+                    # 1. Copiar el kubeconfig de Docker Desktop y adaptarlo al contenedor:
+                    #    127.0.0.1 / kubernetes.docker.internal apuntan al propio contenedor,
+                    #    host.docker.internal apunta al equipo anfitrión donde corre Kubernetes
+                    cp "$HOME/.kube/config" "$KUBECONFIG"
+                    sed -i -E 's#https://(127\\.0\\.0\\.1|localhost|kubernetes\\.docker\\.internal)#https://host.docker.internal#g' "$KUBECONFIG"
+                    sed -i 's/certificate-authority-data:.*/insecure-skip-tls-verify: true/' "$KUBECONFIG"
+
+                    # 2. Aplicar manifiestos (primero el namespace: kubectl recorre la carpeta en orden alfabético)
+                    kubectl apply -f k8s/namespace.yaml
+                    kubectl apply -f k8s/
+
+                    # 3. Fijar la imagen exacta de este build (trazabilidad: pod ↔ build de Jenkins)
+                    kubectl set image deployment/taskapi taskapi="$IMAGE_NAME:$BUILD_NUMBER" -n devops-project
+
+                    # 4. Esperar el rolling update (máx. 2 min); si no termina, el stage falla
+                    kubectl rollout status deployment/taskapi -n devops-project --timeout=120s
+                    kubectl get pods -n devops-project -o wide
+                '''
+            }
+            post {
+                failure {
+                    // Si el despliegue no quedó sano, volver a la versión anterior que sí funcionaba
+                    sh 'kubectl rollout undo deployment/taskapi -n devops-project || true'
+                }
+            }
+        }
     }
 
     post {
@@ -93,7 +126,7 @@ pipeline {
             cleanWs()
         }
         success {
-            echo "Pipeline OK — imagen ${IMAGE_NAME}:${BUILD_NUMBER} publicada en Docker Hub"
+            echo "Pipeline OK — imagen ${IMAGE_NAME}:${BUILD_NUMBER} publicada y desplegada en Kubernetes"
         }
         failure {
             echo "Pipeline FAILED en build #${BUILD_NUMBER} — revisar logs"

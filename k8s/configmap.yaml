@@ -1,0 +1,9 @@
+# Configuración no secreta, inyectada como variables de entorno (envFrom)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: taskapi-config
+  namespace: devops-project
+data:
+  PYTHONUNBUFFERED: "1"
+  APP_ENV: "production"

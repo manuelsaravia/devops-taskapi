@@ -9,6 +9,7 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home              # datos persistentes
       - /var/run/docker.sock:/var/run/docker.sock   # socket del host
+      - ~/.kube:/var/jenkins_home/.kube:ro          # kubeconfig de Docker Desktop (solo lectura)
 
 volumes:
   jenkins_home:

@@ -1,0 +1,16 @@
+# Expone la API en http://localhost (puerto 80 → 8000 del contenedor)
+apiVersion: v1
+kind: Service
+metadata:
+  name: taskapi-service
+  namespace: devops-project
+  labels:
+    app: taskapi
+spec:
+  selector:
+    app: taskapi          # enruta a los pods con este label
+  ports:
+    - protocol: TCP
+      port: 80            # puerto externo
+      targetPort: 8000    # puerto del contenedor
+  type: LoadBalancer
